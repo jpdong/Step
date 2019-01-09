@@ -1,0 +1,5 @@
+<!--miniprogram/pages/invite/invite.wxml-->
+<image class="user-avatar" src="{{partnerImage}}"></image>
+<text class="user-name">{{partnerName}}</text>
+<text>miniprogram/pages/invite/invite.wxml</text>
+<button open-type='getUserInfo' bindtap='getInfoAndAgree'>agree</button>
