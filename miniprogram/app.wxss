@@ -7,5 +7,13 @@
 } 
 .user-avatar{
   width: 50px;
-  height: 50px
+  height: 50px;
+  border-radius: 50%
+}
+
+.btn-area{
+  margin-top: 60rpx;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0 30rpx;
 }

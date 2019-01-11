@@ -83,6 +83,7 @@ function login(){
       console.log(res.result.userid)
       app.globalData.userId = res.result.userid
       app.globalData.name = res.result.userName
+      app.globalData.avatarUrl = res.result.avatarUrl
     },
     fail(res) {
       console.log(res)

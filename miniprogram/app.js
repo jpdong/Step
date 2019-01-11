@@ -15,7 +15,15 @@ App({
       name:"",
       avatarUrl:"",
       userId:"",
-      partnerId:""
+      location:{},
+      partnerId:"",
+      bindingId:"",
+      partner:{
+        id:"",
+        name:"",
+        avatarUrl:"",
+        location:{}
+      }
     }
   }
 })

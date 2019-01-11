@@ -37,9 +37,10 @@
 					"query": ""
 				},
 				{
-					"id": -1,
+					"id": 1,
 					"name": "single",
-					"pathName": "pages/databaseGuide/databaseGuide"
+					"pathName": "pages/invite/invite",
+					"query": ""
 				}
 			]
 		}

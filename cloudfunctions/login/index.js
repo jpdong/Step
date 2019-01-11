@@ -99,7 +99,9 @@ exports.main = async(event, context) => {
     appid: wxContext.APPID,
     unionid: wxContext.UNIONID,
     userid: (userId.data)[0]._id,
-    userName: (userId.data)[0].name
+    userName: (userId.data)[0].name,
+    avatarUrl: (userId.data)[0].avatarUrl,
+    userData: userId.data
   }
 
 }

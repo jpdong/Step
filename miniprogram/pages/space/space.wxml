@@ -1,5 +1,4 @@
 <!--miniprogram/space/space.wxml-->
-<text>miniprogram/space/space.wxml</text>
 <button open-type="getUserInfo" lang="zh_CN" bindtap='getUserInfo' hidden='{{isLogin}}'>
   获取用户信息
 </button>
@@ -7,6 +6,8 @@
 <text>{{myName}}</text>
 <button open-type='share' bindtap='invite' hidden='{{isBinding}}'>invite</button>
 <text>test</text>
+<text>我们相距{{distance}}千米</text>
+<text>击败了全国{{percent}}%的情侣</text>
 
 <map
   id="map"
@@ -16,6 +17,7 @@
   controls="{{controls}}"
   bindcontroltap="controltap"
   markers="{{markers}}"
+  include-points="{{markers}}"
   bindmarkertap="markertap"
   polyline="{{polyline}}"
   bindregionchange="regionchange"

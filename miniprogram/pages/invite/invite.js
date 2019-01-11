@@ -12,7 +12,8 @@ Page({
   data: {
     partnerId:"",
     partnerName:"",
-    partnerImage:""
+    partnerImage:"",
+    isAgree:false
   },
 
   getInfoAndAgree:function(event) {
@@ -152,6 +153,9 @@ function binding(partnerId,userId) {
     success(res) {
       console.log("binding success:" + JSON.stringify(res))
       app.globalData.partnerId = res.result.partnerId
+      pageInstance.setData({
+        isAgree:true
+      })
     },
     fail(res) {
       console.log("binding error:" + res)
