@@ -2,8 +2,8 @@
 <button open-type="getUserInfo" lang="zh_CN" bindtap='getUserInfo' hidden='{{isLogin}}'>
   获取用户信息
 </button>
-<image class='user-avatar' src='{{myAvatarUrl}}'></image>
-<text>{{myName}}</text>
+<image class='user-avatar' src='{{user.avatarUrl}}'></image>
+<text>{{user.name}}</text>
 <button open-type='share' bindtap='invite' hidden='{{isBinding}}'>invite</button>
 <text>test</text>
 <text>我们相距{{distance}}千米</text>
@@ -24,3 +24,4 @@
   show-location
   style="width: 100%; height: 300px;"
 ></map>
+<button bindtap='unbind' hidden='{{!isBinding}}'>解除当前绑定</button>

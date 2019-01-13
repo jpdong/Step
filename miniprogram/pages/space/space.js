@@ -1,13 +1,11 @@
 // miniprogram/space/space.js
 const Util = require("../../util.js")
+const User = require("../../user.js")
+
 const app = getApp()
 const globalData = app.globalData
 var pageInstance
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
     myAvatarUrl: "",
     myName: "",
@@ -31,21 +29,27 @@ Page({
     myLocation: {},
     partnerLocation: {},
     distance: 0,
-    percent:0
+    percent: 0,
+    user: {
+      name:"",
+      avatarUrl:""
+    },
+    partner: {
+      name: "",
+      avatarUrl: ""
+    }
   },
   getUserInfo: function() {
     wx.getUserInfo({
       success: res => {
-        getPartner(app.globalData.userId)
-        app.globalData.name = res.userInfo.nickName
-        app.globalData.avatarUrl = res.userInfo.avatarUrl
+        getPartner(app.globalData.user.id)
+        app.globalData.user.name = res.userInfo.nickName
+        app.globalData.user.avatarUrl = res.userInfo.avatarUrl
         this.setData({
-          myAvatarUrl: res.userInfo.avatarUrl,
-          myName: res.userInfo.nickName,
+          user: app.globalData.user,
           isLogin: true
         })
-        updateUserInfo(app.globalData.userId, res.userInfo.nickName, res.userInfo.avatarUrl)
-
+        updateUserInfo(app.globalData.user.id, res.userInfo.nickName, res.userInfo.avatarUrl)
       },
       fail: res => {
         console.log(res)
@@ -57,45 +61,33 @@ Page({
     invitePartner()
   },
 
+  unbind: function() {
+    User.unbind(app.globalData.user.id)
+  },
+
   onLoad: function(options) {
     pageInstance = this
     wx.showShareMenu({
       withShareTicket: true
     })
-    console.log("onLoad:" + app.globalData.name)
-    if (app.globalData.name == null || app.globalData.name == undefined) {
+    console.log("onLoad:" + app.globalData.user.name)
+    if (Util.checkNotNull(app.globalData.user.name)) {
+      getPartner(app.globalData.user.id)
       this.setData({
-        isLogin: false
+        user:app.globalData.user,
+        isLogin: true
       })
     } else {
-      getPartner(app.globalData.userId)
       this.setData({
-        myName: app.globalData.name,
-        myAvatarUrl: app.globalData.avatarUrl,
-        isLogin: true
+        isLogin: false
       })
     }
   },
 
-  onReady: function() {
-    wx.getSetting({
-      success: res => {
-        if (res.authSetting['scope.userLocation']) {
-          getLocation()
-        } else {
-          wx.authorize({
-            scope: 'scope.userLocation',
-            success() {
-              getLocation()
-            }
-          })
-        }
-      }
-    })
-  },
+  onReady: function() {},
 
   onShow: function() {
-
+  
   },
 
   onHide: function() {},
@@ -111,7 +103,7 @@ Page({
     if (options.from == "button") {
       return {
         title: '加入我们的爱情纪念日',
-        path: '/pages/invite/invite?partnerId=' + app.globalData.userId,
+        path: '/pages/invite/invite?partnerId=' + app.globalData.user.id,
         success: function(options) {
           console.log(options)
         },
@@ -163,79 +155,113 @@ function getPartner(userId) {
       userId: userId
     },
     success(res) {
-      console.log("getPartner success:" + res)
       console.log("getPartner success:" + JSON.stringify(res))
       app.globalData.partnerId = res.result.partnerId
       console.log("app.globalData.parnterId" + app.globalData.partnerId)
       globalData.partner.id = res.result.partnerId
       checkBinding(res)
+      wx.getSetting({
+        success: res => {
+          if (res.authSetting['scope.userLocation']) {
+            getLocation()
+          } else {
+            wx.authorize({
+              scope: 'scope.userLocation',
+              success() {
+                getLocation()
+              }
+            })
+          }
+        }
+      })
     },
     fail(res) {
       console.log("getPartner error:" + res)
-      checkBinding()
     }
   })
 }
 
 function checkBinding(res) {
+  console.log("checkBinding-----------------------------")
   var result = true
-  if (app.globalData.partnerId == null || app.globalData.partnerId == undefined || app.globalData.partnerId == "") {
-    result = false
-  } else {
-    globalData.partner.name = res.result.partner.name
-    globalData.partner.avatarUrl = res.result.partner.avatarUrl
-    globalData.bindingId = res.result.partner.bindingId
-    globalData.partner.location = JSON.parse(res.result.partner.location)
-    if (Util.checkNotNull(globalData.partner.location)) {
-      var partnerLocation = pageInstance.data.markers[1]
-      partnerLocation.latitude = globalData.partner.location.latitude
-      partnerLocation.longitude = globalData.partner.location.longitude
-      partnerLocation.iconPath = globalData.partner.avatarUrl
-      pageInstance.data.partnerLocation = partnerLocation
+  if (Util.checkNotNull(res.result.partnerId)) {
+    console.log("checkBinding:partnerId" + res.result.partnerId)
+    const partner = new User.User(res.result.partnerId, res.result.partner.name, res.result.partner.avatarUrl)
+    partner.location = JSON.parse(res.result.partner.location)
+    partner.bindingId = res.result.partner.bindingId
+    app.globalData.partner = partner
+    pageInstance.data.partner = partner
+    if (Util.checkNotNull(partner.location)) {
+      console.log("partner.location:" + JSON.stringify(partner.location))
+      var partnerMarker = pageInstance.data.markers[1]
+      console.log(partner.location.latitude)
+      console.log(partner.location.longitude)
+      console.log(partnerMarker)
+      partnerMarker.latitude = partner.location.latitude
+      partnerMarker.longitude = partner.location.longitude
+      partnerMarker.id = 1
+      partnerMarker.iconPath = partner.avatarUrl
       pageInstance.setData({
-        markers: [pageInstance.data.myLocation, partnerLocation]
+        markers: [pageInstance.data.markers[0], partnerMarker]
       })
-      const myLocation = pageInstance.data.myLocation
-      const distance = Util.getDistance(myLocation.latitude, myLocation.longitude, partnerLocation.latitude, partnerLocation.longitude)
+      const myLocation = pageInstance.data.markers[0]
+      const distance = Util.getDistance(myLocation.latitude, myLocation.longitude, partner.location.latitude, partner.location.longitude)
       pageInstance.setData({
         distance: distance
       })
       uploadDistance(distance)
     }
+  } else {
+    result = false
+
   }
   pageInstance.setData({
     isBinding: result
   })
-  console.log(app.globalData.partnerId)
+  console.log(app.globalData.partner.id)
   console.log(result)
 }
 
 function getLocation() {
+  console.log("getLocation---------------------")
   wx.getLocation({
     type: 'wgs84',
     altitude: true,
     success(res) {
-      const latitude = res.latitude
-      const longitude = res.longitude
-      console.log("lat:" + latitude + ",lon:" + longitude)
-      var myLocation = pageInstance.data.markers[0]
-      pageInstance.data.partnerLocation = pageInstance.data.markers[1]
-      myLocation.latitude = latitude
-      myLocation.longitude = longitude
-      myLocation.iconPath = pageInstance.data.myAvatarUrl
-      pageInstance.data.myLocation = myLocation
+      const lati = res.latitude
+      const longi = res.longitude
+      console.log("lat:" + lati + ",lon:" + longi)
+      var myMarker = pageInstance.data.markers[0]
+      myMarker.latitude = lati
+      myMarker.longitude = longi
+      myMarker.iconPath = pageInstance.data.user.avatarUrl
       pageInstance.setData({
-        markers: [myLocation, pageInstance.data.partnerLocation]
+        markers: [myMarker, pageInstance.data.markers[1]]
       })
       console.log("check userId:" + Util.checkNotNull(app.globalData.userId))
-      if (Util.checkNotNull(app.globalData.userId)) {
-        uploadLocation(app.globalData.userId, latitude, longitude)
-        const partnerLocation = pageInstance.data.partnerLocation
-        const distance = Util.getDistance(myLocation.latitude, myLocation.longitude, partnerLocation.latitude, partnerLocation.longitude)
-        pageInstance.setData({
-          distance: distance
-        })
-        uploadDistance(distance)
+      if (Util.checkNotNull(app.globalData.user.id)) {
+        const location = pageInstance.data.user.location
+        uploadLocation(app.globalData.user.id, lati, longi)
+        console.log("partnerId" + app.globalData.user.partnerId)
+        if (Util.checkNotNull(app.globalData.user.partnerId)){
+          console.log("partnerId:" + app.globalData.user.partnerId)
+          const partner = pageInstance.data.partner
+          var partnerMarker = pageInstance.data.markers[1]
+          partnerMarker.latitude = partner.location.latitude
+          partnerMarker.longitude = partner.location.longitude
+          partnerMarker.id = 1
+          partnerMarker.iconPath = partner.avatarUrl
+          console.log("partnerMarker:" + partnerMarker)
+          pageInstance.setData({
+            markers: [pageInstance.data.markers[0], partnerMarker]
+          })
+          const distance = Util.getDistance(lati, longi, partnerMarker.latitude, partnerMarker.longitude)
+          pageInstance.setData({
+            distance: distance
+          })
+          uploadDistance(distance)
+        }
+        
       }
     }
   })
@@ -263,12 +289,12 @@ function uploadLocation(userId, lat, longit) {
 }
 
 function uploadDistance(distance) {
-  if (Util.checkNotNull(globalData.bindingId)) {
+  if (Util.checkNotNull(globalData.partner.bindingId)) {
     wx.cloud.callFunction({
       name: "uploadDistance",
       data: {
-        bindingId: globalData.bindingId,
-        distance:distance
+        bindingId: globalData.partner.bindingId,
+        distance: distance
       },
       success(res) {
         console.log("uploadDistance success:" + res)

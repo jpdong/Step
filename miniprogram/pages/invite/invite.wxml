@@ -1,9 +1,9 @@
 <!--miniprogram/pages/invite/invite.wxml-->
-<image class="user-avatar" src="{{partnerImage}}"></image>
-<text class="user-name">{{partnerName}}</text>
+<image class="user-avatar" src="{{partner.avatarUrl}}"></image>
+<text class="user-name">{{partner.name}}</text>
 <text>miniprogram/pages/invite/invite.wxml</text>
 <button open-type='getUserInfo' bindtap='getInfoAndAgree' hidden='{{isAgree}}'>agree</button>
-<view class="btn-area" hidden='{{!isAgree}}'><navigator
+<view class="btn-area" hidden='{{!isWelcome}}'><navigator
     url="../../pages/space/space"
     hover-class="navigator-hover"
     open-type='switchTab'

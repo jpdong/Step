@@ -18,6 +18,7 @@ App({
       location:{},
       partnerId:"",
       bindingId:"",
+      user:{},
       partner:{
         id:"",
         name:"",
