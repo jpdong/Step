@@ -1,0 +1,17 @@
+<!--miniprogram/pages/detail/detail.wxml-->
+<text>miniprogram/pages/detail/detail.wxml</text>
+<view class="weui-cells__title">纪念的事</view>
+<view class="weui-cells weui-cells_after-title">
+  <view class="weui-cell weui-cell_input">
+    <input class="weui-input" bindblur='inputTitle' placeholder="" />
+  </view>
+</view>
+<view class="weui-cells__title">选择日子</view>
+
+
+<picker class="weui-cells weui-cells_after-title" mode="date" value="{{date}}" bindchange="bindDateChange">
+  <view class="weui-input">{{date}}</view>
+</picker>
+<view class="picker">当前选择: {{date}}</view>
+<text>{{days}}</text>
+<button bindtap='save'>保存</button>

@@ -1,26 +1,28 @@
 // miniprogram/pages/time.js
 const User = require("../../user.js")
+const Day = require("../../day.js")
+
+const SIZE = 20
 const app = getApp()
+var pageInstance
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    user:{}
+    user: {},
+    days: [],
+    skip:0,
+    noMore:false
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
+  addEvent: function() {
+
+  },
   onLoad: function(options) {
-    wx.cloud.callFunction({
-      name: "test",
-      data: {},
-      success(res) {
-        console.log(res)
-      }
-    })
+    pageInstance = this
+    loadData(0,20)
   },
 
   /**
@@ -55,7 +57,16 @@ Page({
    * 页面相关事件处理函数--监听用户下拉动作
    */
   onPullDownRefresh: function() {
-
+    if (pageInstance.data.noMore) {
+      wx.showToast({
+        title: '暂无更多',
+        icon: 'none',
+        duration: 1000
+      })
+    } else {
+      loadData(pageInstance.data.skip, SIZE)
+    }
+      
   },
 
   /**
@@ -73,7 +84,7 @@ Page({
   }
 })
 
-function login(){
+function login() {
   // wx.cloud.callFunction({
   //   name: "login",
   //   data: {},
@@ -91,17 +102,17 @@ function login(){
   //   }
   // })
   User.login()
-  .then(function(res){
-    console.log("then1:" + JSON.stringify(res))
-    const currentUser = new User.User(res.result.userid,res.result.userName,res.result.avatarUrl)
-    currentUser.partnerId = res.result.userData.partnerId
-    currentUser.bindingId = res.result.userData.bindingId
-    app.globalData.user = currentUser
-    console.log("current user:" + JSON.stringify(currentUser))
-  })
-  .catch(function(res){
-    console.log("catch:" + JSON.stringify(res))
-  })
+    .then(function(res) {
+      console.log("then1:" + JSON.stringify(res))
+      const currentUser = new User.User(res.result.userid, res.result.userName, res.result.avatarUrl)
+      currentUser.partnerId = res.result.userData.partnerId
+      currentUser.bindingId = res.result.userData.bindingId
+      app.globalData.user = currentUser
+      console.log("current user:" + JSON.stringify(currentUser))
+    })
+    .catch(function(res) {
+      console.log("catch:" + JSON.stringify(res))
+    })
 }
 
 // function updateUserInfo(id,name,imageUrl){
@@ -120,3 +131,19 @@ function login(){
 //     }
 //   })
 // }
+function loadData(skip,size) {
+  Day.getDayList(skip,size)
+    .then(function (res) {
+      const days = res.result.data
+      console.log("data:" + JSON.stringify(res))
+      console.log("size" + days.length)
+      pageInstance.data.skip  += days.length
+      console.log(pageInstance.data.skip)
+      pageInstance.setData({
+        days:days
+      })
+    })
+    .catch(function (res) {
+      console.log("catch:" + JSON.stringify(res))
+    })
+}

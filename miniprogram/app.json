@@ -2,7 +2,9 @@
   "pages": [
     "pages/time/time",
     "pages/space/space",
-    "pages/invite/invite"
+    "pages/invite/invite",
+    "pages/detail/detail"
+    
   ],
   "window": {
     "backgroundColor": "#F6F6F6",

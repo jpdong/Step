@@ -1,2 +1,10 @@
 <!--miniprogram/pages/time.wxml-->
 <text>miniprogram/pages/time.wxml</text>
+<button bindtap='addEvent'>add</button>
+<view class="btn-area"><navigator
+    url="../../pages/detail/detail"
+    hover-class="navigator-hover"
+  >
+  add
+  </navigator></view>
+<view wx:for="{{days}}" wx:key="{{item._id}}">{{item.title}}</view>
