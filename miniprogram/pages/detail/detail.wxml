@@ -8,7 +8,7 @@
 </view>
 <view class="weui-cells__title">选择日子</view>
 
-
+<text>ddd</text>
 <picker class="weui-cells weui-cells_after-title" mode="date" value="{{date}}" bindchange="bindDateChange">
   <view class="weui-input">{{date}}</view>
 </picker>
